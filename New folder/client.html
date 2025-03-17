@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+<body>
+    <h1>Client</h1>
+    <script>
+        var gateway = 'ws://172.27.9.65/ws';
+        var websocket;
+        function initWebSocket()
+        {
+            console.log('opening connection...');
+            websocket = new WebSocket(gateway);
+            websocket.onopen = onOpen;
+            websocket.onclose = onClose;
+            websocket.onmessage = onMessage;
+        }
+        function onOpen(event) {
+          console.log('Connection opened');
+        }
+    
+        function onClose(event) {
+          console.log('Connection closed');
+          setTimeout(initWebSocket, 2000);
+        }
+        function onMessage(event) {
+          var state;
+          if (event.data == "1"){
+            state = "ON";
+          }
+          else{
+            state = "OFF";
+          }
+          console.log(event.data)
+        //   document.getElementById('state').innerHTML = state;
+        }
+        window.addEventListener('load', onLoad);
+        function onLoad(event) {
+            initWebSocket();
+        }
+    </script>
+</body>
+</html>

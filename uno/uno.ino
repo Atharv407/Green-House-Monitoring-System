@@ -4,6 +4,8 @@
 #include <Wire.h>
 #include <Adafruit_BMP085.h>
 #include <SoftwareSerial.h>
+#define fan_pin 4
+#define pump_pin 7
 
 #define seaLevelPressure_hPa 1013.25
 
@@ -14,11 +16,14 @@ const int ldr_sensor_pin = A1;
 DHT dht(dhtPin, dhtType);
 void setup() {
   Serial.begin(115200);
+  // pinMode(ledpin, OUTPUT);
+  pinMode(fan_pin, OUTPUT);
+  pinMode(pump_pin, OUTPUT);
   dht.begin();
-  while (!bmp.begin()) {
-	  Serial.println("Could not find a valid BMP085 sensor, check wiring!");
-    delay(2000);
-  }
+  // while (!bmp.begin()) {
+	//   Serial.println("Could not find a valid BMP085 sensor, check wiring!");
+  //   delay(2000);
+  // }
 }
 
 float ktfilter(float z) {
@@ -149,6 +154,8 @@ float kpfilter(float z) {
 }
 
 void loop() {
+  // Serial.println(digitalRead(ledpin));
+  
   float temp = dht.readTemperature();
   float hum = dht.readHumidity();
   if(isnan(temp) || isnan(hum)){
@@ -171,20 +178,35 @@ void loop() {
 
   sensor_analog2 = analogRead(ldr_sensor_pin);
   int lightIntensity = 100 - map(sensor_analog2, 0, 300, 0, 100);
+  lightIntensity = analogRead(ldr_sensor_pin);
+  Serial.println();
+  Serial.println(lightIntensity);
+  Serial.println();
+  // if (analogRead(ledpin) == HIGH ) {
+  //   Serial.println(696969);
+    
+  //   digitalWrite(ledpin, LOW);
+  // }
+  // else{
+  //   Serial.println(420);
+  //   digitalWrite(ledpin, HIGH);
+  // }
   lightIntensity = klfilter(lightIntensity);
+  digitalWrite(fan_pin, LOW);
+  digitalWrite(pump_pin, HIGH);
   Serial.print(100-lightIntensity);
   Serial.print(",");
 
-  float pressure = bmp.readPressure();
+  float pressure = 100;
   pressure = kpfilter(pressure);
   Serial.print(pressure);
   Serial.print(",");
   
-  float altitude = bmp.readAltitude();
+  float altitude = 100;
   altitude = kafilter(altitude);
   Serial.print(altitude);
 
   Serial.println();
 
-  delay(2000);
+  delay(1000);
 }
